@@ -1,18 +1,27 @@
-'use client';
-import { Search, Bell, Sun, Moon, Menu } from 'lucide-react';
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { getSavedUser } from '@/lib/api';
-import { useTheme } from '@/hooks/useTheme';
-import { useUI } from '@/components/ui-context';
-import GlobalSearch from '@/components/GlobalSearch';
+"use client";
+import { Search, Bell, Sun, Moon, Menu } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { getSavedUser } from "@/lib/api";
+import { useTheme } from "@/hooks/useTheme";
+import { useUI } from "@/components/ui-context";
+import GlobalSearch from "@/components/GlobalSearch";
 
 /**
  * Responsive top bar.
  *
- * Mobile: hamburger + title + compact icon row. The full search field is
- * replaced by an icon — at 375px it consumed the entire bar.
- * Desktop (lg+): unchanged — full search field, theme toggle, bell, profile chip.
+ * MOBILE (< lg)
+ *   The sticky bar holds controls only: hamburger, search, theme, profile.
+ *   Title, subtitle and page actions render BELOW it, full width.
+ *
+ *   Why: the subtitle carries a status badge ("Pending Payment · Created 18h
+ *   ago"). Inside the header it sat in a `truncate` container competing with
+ *   four icons, so the badge was clipped off entirely. Below the bar it has
+ *   the full width and can wrap, so nothing is lost. It also scrolls away
+ *   while the controls stay pinned.
+ *
+ * DESKTOP (lg+)
+ *   Unchanged — title, subtitle and actions all sit inline in the bar.
  */
 export default function TopBar({ title, subtitle, actions }) {
   const [user, setUser] = useState(null);
@@ -20,21 +29,27 @@ export default function TopBar({ title, subtitle, actions }) {
   const { theme, toggle } = useTheme();
   const { openSidebar } = useUI();
 
-  useEffect(() => { setUser(getSavedUser()); }, []);
+  useEffect(() => {
+    setUser(getSavedUser());
+  }, []);
 
   useEffect(() => {
     const onKey = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setSearchOpen(true);
       }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  const initials = (user?.full_name || 'A')
-    .split(' ').map((s) => s[0]).slice(0, 2).join('').toUpperCase();
+  const initials = (user?.full_name || "A")
+    .split(" ")
+    .map((s) => s[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
   return (
     <>
@@ -49,18 +64,23 @@ export default function TopBar({ title, subtitle, actions }) {
             <Menu className="h-4 w-4" />
           </button>
 
-          <div className="min-w-0 flex-1">
+          {/* Title in the bar — lg and up only */}
+          <div className="hidden min-w-0 flex-1 lg:block">
             {title && (
-              <h1 className="truncate text-base font-semibold leading-tight text-ink-900 sm:text-lg lg:text-xl dark:text-ink-100">
+              <h1 className="truncate text-xl font-semibold leading-tight text-ink-900 dark:text-ink-100">
                 {title}
               </h1>
             )}
             {subtitle && (
-              <div className="mt-0.5 truncate text-xs text-ink-500 sm:text-sm dark:text-ink-400">
+              <div className="mt-0.5 truncate text-sm text-ink-500 dark:text-ink-400">
                 {subtitle}
               </div>
             )}
           </div>
+
+          {/* Below lg the title lives outside the bar, so this just pushes
+              the controls to the right edge. */}
+          <div className="flex-1 lg:hidden" />
 
           {/* Full search field — md and up */}
           <button
@@ -68,7 +88,9 @@ export default function TopBar({ title, subtitle, actions }) {
             className="hidden h-10 w-72 max-w-xs items-center rounded-xl border border-ink-200 bg-white px-3 text-left transition hover:bg-ink-50 md:flex dark:border-ink-800 dark:bg-ink-900 dark:hover:bg-ink-800"
           >
             <Search className="h-4 w-4 text-ink-400" />
-            <span className="flex-1 px-2 text-sm text-ink-400">Search shipments, riders…</span>
+            <span className="flex-1 px-2 text-sm text-ink-400">
+              Search shipments, riders…
+            </span>
             <span className="kbd">⌘K</span>
           </button>
 
@@ -83,15 +105,16 @@ export default function TopBar({ title, subtitle, actions }) {
 
           <button
             onClick={toggle}
-            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
             className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-ink-200 bg-white transition hover:bg-ink-50 dark:border-ink-800 dark:bg-ink-900 dark:hover:bg-ink-800"
           >
-            {theme === 'dark'
-              ? <Sun className="h-4 w-4 text-amber-400" />
-              : <Moon className="h-4 w-4 text-ink-700" />}
+            {theme === "dark" ? (
+              <Sun className="h-4 w-4 text-amber-400" />
+            ) : (
+              <Moon className="h-4 w-4 text-ink-700" />
+            )}
           </button>
 
-          {/* Bell hides on the narrowest screens so the title keeps its space */}
           <Link
             href="/notifications"
             aria-label="Notifications"
@@ -101,7 +124,6 @@ export default function TopBar({ title, subtitle, actions }) {
             <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full border-2 border-white bg-rose-500 dark:border-ink-950" />
           </Link>
 
-          {/* Profile — avatar only below lg, full chip above */}
           <Link
             href="/profile"
             className="flex shrink-0 items-center gap-3 rounded-xl border border-ink-200 bg-white py-1.5 pl-2 pr-2 hover:bg-ink-50 lg:pr-4 dark:border-ink-800 dark:bg-ink-900 dark:hover:bg-ink-800"
@@ -111,17 +133,47 @@ export default function TopBar({ title, subtitle, actions }) {
             </div>
             <div className="hidden lg:block">
               <div className="text-sm font-medium leading-none text-ink-900 dark:text-ink-100">
-                {user?.full_name || 'Admin'}
+                {user?.full_name || "Admin"}
               </div>
               <div className="mt-0.5 text-[11px] capitalize text-ink-500 dark:text-ink-400">
-                {user?.role || 'admin'}
+                {user?.role || "admin"}
               </div>
             </div>
           </Link>
 
-          {actions}
+          {/* Page actions — inline on desktop only */}
+          {actions && (
+            <div className="hidden shrink-0 items-center gap-2 lg:flex">
+              {actions}
+            </div>
+          )}
         </div>
       </header>
+
+      {/*
+        Mobile title block. Sits outside the sticky header so it scrolls away
+        with the page, and crucially has NO `truncate` — the status badge and
+        "Created 18h ago" wrap onto a second line instead of being cut off.
+      */}
+      {(title || subtitle || actions) && (
+        <div className="px-4 pt-4 sm:px-6 lg:hidden">
+          {title && (
+            <h1 className="break-words text-lg font-semibold leading-snug text-ink-900 dark:text-ink-100">
+              {title}
+            </h1>
+          )}
+          {subtitle && (
+            <div className="mt-1.5 text-xs leading-relaxed text-ink-500 dark:text-ink-400">
+              {subtitle}
+            </div>
+          )}
+          {actions && (
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              {actions}
+            </div>
+          )}
+        </div>
+      )}
 
       <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>

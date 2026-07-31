@@ -44,23 +44,16 @@ export default function ShipmentsPage() {
 
   const columns = [
     {
-      key: 'tracking_number',
-      label: 'Tracking',
-      primary: true,
+      key: 'tracking_number', label: 'Tracking', primary: true,
       render: (s) => (
-        <Link
-          href={`/shipments/${s.id}`}
-          onClick={(e) => e.stopPropagation()}
-          className="link font-medium"
-        >
+        <Link href={`/shipments/${s.id}`} onClick={(e) => e.stopPropagation()} className="link font-medium">
           {s.tracking_number}
         </Link>
       ),
     },
     { key: 'status', label: 'Status', render: (s) => <ShipmentBadge status={s.status} /> },
     {
-      key: 'customer',
-      label: 'Customer',
+      key: 'customer', label: 'Customer',
       render: (s) => (
         <>
           <div className="font-medium">{s.customer_name}</div>
@@ -69,35 +62,27 @@ export default function ShipmentsPage() {
       ),
     },
     {
-      key: 'rider',
-      label: 'Rider',
-      render: (s) =>
-        s.rider_name ? (
-          <>
-            <div className="font-medium">{s.rider_name}</div>
-            <div className="text-xs text-ink-500 dark:text-ink-400">{s.rider_phone}</div>
-          </>
-        ) : (
-          <span className="text-xs text-ink-400">Unassigned</span>
-        ),
+      key: 'rider', label: 'Rider',
+      render: (s) => s.rider_name ? (
+        <>
+          <div className="font-medium">{s.rider_name}</div>
+          <div className="text-xs text-ink-500 dark:text-ink-400">{s.rider_phone}</div>
+        </>
+      ) : <span className="text-xs text-ink-400">Unassigned</span>,
     },
     {
-      key: 'route',
-      label: 'Route',
+      key: 'route', label: 'Route',
       render: (s) => `${s.pickup_city || '—'} → ${s.delivery_city || '—'}`,
       className: 'text-xs',
     },
     {
-      key: 'amount',
-      label: 'Amount',
-      align: 'right',
+      key: 'amount', label: 'Amount', align: 'right',
       render: (s) => money(s.total_price, s.currency),
       className: 'tabular-nums',
     },
     {
-      key: 'created',
-      label: 'Created',
-      hideOnMobile: true,       // low value on a phone — keeps the card tight
+      key: 'created', label: 'Created',
+      hideOnMobile: true,   // low value on a phone — keeps the card tight
       render: (s) => dateShort(s.created_at),
       className: 'text-xs text-ink-500 dark:text-ink-400',
     },
@@ -126,9 +111,7 @@ export default function ShipmentsPage() {
               onChange={(e) => { setPage(1); setStatus(e.target.value); }}
             >
               {STATUS_OPTIONS.map((s) => (
-                <option key={s} value={s}>
-                  {s ? s.replace(/_/g, ' ') : 'All statuses'}
-                </option>
+                <option key={s} value={s}>{s ? s.replace(/_/g, ' ') : 'All statuses'}</option>
               ))}
             </select>
           </div>
@@ -146,23 +129,10 @@ export default function ShipmentsPage() {
               columns={columns}
               keyField="id"
               onRowClick={(s) => router.push(`/shipments/${s.id}`)}
-              empty={
-                <EmptyState
-                  icon={Package}
-                  title="No shipments found"
-                  subtitle="Try adjusting the filters."
-                />
-              }
-              footer={
-                rows.length > 0 && (
-                  <Pagination
-                    page={meta.page}
-                    pageSize={meta.pageSize}
-                    total={meta.total}
-                    onChange={setPage}
-                  />
-                )
-              }
+              empty={<EmptyState icon={Package} title="No shipments found" subtitle="Try adjusting the filters." />}
+              footer={rows.length > 0 && (
+                <Pagination page={meta.page} pageSize={meta.pageSize} total={meta.total} onChange={setPage} />
+              )}
             />
           )}
         </div>

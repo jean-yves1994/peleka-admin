@@ -30,10 +30,7 @@ const NAV = [
  * Off-canvas drawer below `lg`, permanently docked from `lg` up.
  *
  * The previous version was `fixed w-64` at every breakpoint, so on a phone it
- * covered most of the screen with no way to dismiss it — which is exactly what
- * the screenshot showed.
- *
- * `open` / `onClose` are supplied by the dashboard layout.
+ * covered most of the screen with no way to dismiss it.
  */
 export default function Sidebar({ open = false, onClose = () => {} }) {
   const pathname = usePathname();

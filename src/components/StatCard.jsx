@@ -12,15 +12,13 @@ export default function StatCard({ label, value, sub, icon: Icon, tone = 'brand'
   return (
     <div className="card p-4 sm:p-5">
       {/*
-        The old layout was a single flex row: text on the left, a 44px icon
-        pinned right. On a narrow card that leaves the label ~60px, so it
-        wrapped onto two lines and collided with the icon.
-
-        Now the icon sits ABOVE the text on mobile and moves back beside it
-        from `sm` up, where there's room.
+        The old layout was a single flex row: text left, 44px icon pinned right.
+        On a narrow card that left the label ~60px, so it wrapped onto two lines
+        and collided with the icon. Now the icon sits ABOVE the text on mobile
+        and moves back beside it from `sm` up, where there's room.
       */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-        <div className="min-w-0 order-2 sm:order-1">
+        <div className="order-2 min-w-0 sm:order-1">
           <div className="text-[11px] font-medium uppercase leading-tight tracking-wider text-ink-500 sm:text-xs dark:text-ink-400">
             {label}
           </div>

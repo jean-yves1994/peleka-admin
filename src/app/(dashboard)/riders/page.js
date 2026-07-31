@@ -131,22 +131,11 @@ export default function RidersPage() {
   );
 
   const columns = [
-    {
-      key: 'name',
-      label: 'Rider',
-      primary: true,
-      render: (r) => r.full_name,
-    },
-    {
-      key: 'contact',
-      label: 'Contact',
-      secondary: true,
-      render: (r) => r.email || r.phone,
-    },
+    { key: 'name', label: 'Rider', primary: true, render: (r) => r.full_name },
+    { key: 'contact', label: 'Contact', secondary: true, render: (r) => r.email || r.phone },
     { key: 'status', label: 'Status', render: (r) => <RiderBadge status={r.status} /> },
     {
-      key: 'vehicle',
-      label: 'Vehicle',
+      key: 'vehicle', label: 'Vehicle',
       render: (r) => (
         <>
           <div className="font-medium capitalize">{r.vehicle_type}</div>
@@ -156,15 +145,12 @@ export default function RidersPage() {
       className: 'text-xs',
     },
     {
-      key: 'jobs',
-      label: 'Delivered',
-      align: 'right',
+      key: 'jobs', label: 'Delivered', align: 'right',
       render: (r) => r.completed_jobs || 0,
       className: 'text-right font-medium tabular-nums',
     },
     {
-      key: 'rating',
-      label: 'Rating',
+      key: 'rating', label: 'Rating',
       render: (r) => (
         <span className="flex items-center gap-1">
           <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
@@ -175,17 +161,13 @@ export default function RidersPage() {
       className: 'text-xs',
     },
     {
-      key: 'seen',
-      label: 'Last seen',
-      hideOnMobile: true,
+      key: 'seen', label: 'Last seen', hideOnMobile: true,
       render: (r) => (r.last_location_at ? relative(r.last_location_at) : 'Never'),
       className: 'text-xs text-ink-500 dark:text-ink-400',
     },
     {
-      key: 'actions',
-      label: 'Actions',
-      align: 'right',
-      hideOnMobile: true,          // rendered separately in the mobile card
+      key: 'actions', label: 'Actions', align: 'right',
+      hideOnMobile: true,   // rendered separately in the mobile card
       render: (r) => <div className="inline-flex gap-1">{actionButtons(r)}</div>,
     },
   ];
@@ -196,11 +178,7 @@ export default function RidersPage() {
         title="Riders"
         subtitle={`${meta.total || 0} riders`}
         actions={
-          <button
-            onClick={() => setCreateOpen(true)}
-            aria-label="New rider"
-            className="btn btn-primary hidden shrink-0 sm:inline-flex"
-          >
+          <button onClick={() => setCreateOpen(true)} className="btn btn-primary hidden shrink-0 sm:inline-flex">
             <UserPlus className="h-4 w-4" /> New rider
           </button>
         }
@@ -277,9 +255,7 @@ export default function RidersPage() {
                   <dl className="mt-3 grid grid-cols-3 gap-3">
                     <div>
                       <dt className="text-[10px] uppercase tracking-wider text-ink-400">Vehicle</dt>
-                      <dd className="mt-0.5 text-xs capitalize text-ink-800 dark:text-ink-100">
-                        {r.vehicle_type}
-                      </dd>
+                      <dd className="mt-0.5 text-xs capitalize text-ink-800 dark:text-ink-100">{r.vehicle_type}</dd>
                     </div>
                     <div>
                       <dt className="text-[10px] uppercase tracking-wider text-ink-400">Delivered</dt>
@@ -299,16 +275,9 @@ export default function RidersPage() {
                   <div className="mt-3">{actionButtons(r)}</div>
                 </div>
               )}
-              footer={
-                rows.length > 0 && (
-                  <Pagination
-                    page={meta.page}
-                    pageSize={meta.pageSize}
-                    total={meta.total}
-                    onChange={setPage}
-                  />
-                )
-              }
+              footer={rows.length > 0 && (
+                <Pagination page={meta.page} pageSize={meta.pageSize} total={meta.total} onChange={setPage} />
+              )}
             />
           )}
         </div>
@@ -430,9 +399,7 @@ export default function RidersPage() {
                     }`}
                   >
                     <input
-                      type="radio"
-                      name="reason"
-                      value={reason.value}
+                      type="radio" name="reason" value={reason.value}
                       checked={suspendCategory === reason.value}
                       onChange={(e) => setSuspendCategory(e.target.value)}
                       className="accent-rose-600"
@@ -448,9 +415,7 @@ export default function RidersPage() {
                 Additional notes {suspendCategory === 'other' && <span className="text-rose-600">*</span>}
               </label>
               <textarea
-                rows="3"
-                className="input"
-                value={suspendNotes}
+                rows="3" className="input" value={suspendNotes}
                 onChange={(e) => setSuspendNotes(e.target.value)}
                 placeholder={suspendCategory === 'other'
                   ? 'Describe the reason for suspension…'

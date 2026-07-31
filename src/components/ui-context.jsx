@@ -8,8 +8,8 @@ import { createContext, useContext } from 'react';
  * in the dashboard layout. This context lets the hamburger button open the
  * drawer without prop-drilling `openSidebar` through every page component.
  *
- * The defaults are no-ops so that a component rendered outside the provider
- * (e.g. in a test) doesn't crash — it just does nothing.
+ * Defaults are no-ops so a component rendered outside the provider doesn't
+ * crash — it just does nothing.
  */
 export const UIContext = createContext({
   sidebarOpen: false,

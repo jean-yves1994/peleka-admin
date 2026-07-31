@@ -20,34 +20,24 @@ export default function DashboardLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    const t =
-      typeof window !== 'undefined' && localStorage.getItem('peleka_access_token');
-    if (!t) {
-      router.replace('/login');
-      return;
-    }
+    const t = typeof window !== 'undefined' && localStorage.getItem('peleka_access_token');
+    if (!t) { router.replace('/login'); return; }
     setReady(true);
   }, [router]);
 
   // Close the drawer on navigation. Without this, tapping a nav item leaves
   // the overlay sitting on top of the page you just opened.
-  useEffect(() => {
-    setSidebarOpen(false);
-  }, [pathname]);
+  useEffect(() => { setSidebarOpen(false); }, [pathname]);
 
   // Stop the page scrolling behind the open drawer.
   useEffect(() => {
     document.body.style.overflow = sidebarOpen ? 'hidden' : '';
-    return () => {
-      document.body.style.overflow = '';
-    };
+    return () => { document.body.style.overflow = ''; };
   }, [sidebarOpen]);
 
   // Esc closes the drawer.
   useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === 'Escape') setSidebarOpen(false);
-    };
+    const onKey = (e) => { if (e.key === 'Escape') setSidebarOpen(false); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, []);

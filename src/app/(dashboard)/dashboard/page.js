@@ -43,26 +43,19 @@ export default function DashboardPage() {
       label: 'Tracking',
       primary: true,
       render: (s) => (
-        <Link
-          href={`/shipments/${s.id}`}
-          onClick={(e) => e.stopPropagation()}
-          className="link font-medium"
-        >
+        <Link href={`/shipments/${s.id}`} onClick={(e) => e.stopPropagation()} className="link font-medium">
           {s.tracking_number}
         </Link>
       ),
     },
     { key: 'status', label: 'Status', render: (s) => <ShipmentBadge status={s.status} /> },
     {
-      key: 'amount',
-      label: 'Amount',
-      align: 'right',
+      key: 'amount', label: 'Amount', align: 'right',
       render: (s) => money(s.total_price, s.currency),
       className: 'tabular-nums',
     },
     {
-      key: 'created',
-      label: 'Created',
+      key: 'created', label: 'Created',
       render: (s) => relative(s.created_at),
       className: 'text-ink-500 dark:text-ink-400',
     },
@@ -72,7 +65,7 @@ export default function DashboardPage() {
     <>
       <TopBar title="Dashboard" subtitle={`Overview of today's operations in ${CITY.name}.`} />
 
-      {/* Page padding scales with the viewport instead of a flat px-8 */}
+      {/* Padding scales with the viewport instead of a flat px-8 */}
       <div className="space-y-4 px-4 py-5 sm:px-6 lg:space-y-6 lg:px-8 lg:py-6">
         {loading ? (
           <div className="text-sm text-ink-500 dark:text-ink-400">Loading…</div>
@@ -81,40 +74,33 @@ export default function DashboardPage() {
         ) : (
           <>
             {/*
-              KPI grid. Starts at ONE column — two 130px cards side by side is
-              what produced the overlapping text in the screenshot.
-                <  640px : 1 column
-                ≥  640px : 2 columns
-                ≥ 1280px : 4 columns
+              Starts at ONE column. Two ~130px cards side by side is what
+              produced the overlapping label/icon in the screenshot.
             */}
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
               <StatCard
                 label="Total shipments"
                 value={num(data.shipments.total)}
                 sub={`${num(data.shipments.last_24h)} in last 24h`}
-                icon={Package}
-                tone="brand"
+                icon={Package} tone="brand"
               />
               <StatCard
                 label="Active deliveries"
                 value={num(data.shipments.active)}
                 sub={`${num(data.shipments.delivered)} delivered · ${num(data.shipments.cancelled)} cancelled`}
-                icon={TrendingUp}
-                tone="sky"
+                icon={TrendingUp} tone="sky"
               />
               <StatCard
                 label="Revenue (30d)"
                 value={money(data.revenue.revenue_30d)}
                 sub={`Total: ${money(data.revenue.revenue_total)}`}
-                icon={DollarSign}
-                tone="emerald"
+                icon={DollarSign} tone="emerald"
               />
               <StatCard
                 label="Riders online / approved"
                 value={`${num(data.riders.online)} / ${num(data.riders.approved)}`}
                 sub={`${num(data.riders.pending_approval)} pending approval`}
-                icon={Users}
-                tone="amber"
+                icon={Users} tone="amber"
               />
             </div>
 
@@ -126,16 +112,13 @@ export default function DashboardPage() {
                     <h3 className="font-semibold text-ink-900 dark:text-ink-100">
                       Revenue &amp; rider payouts
                     </h3>
-                    <p className="mt-0.5 text-xs text-ink-500 dark:text-ink-400">
-                      Last 30 days · daily
-                    </p>
+                    <p className="mt-0.5 text-xs text-ink-500 dark:text-ink-400">Last 30 days · daily</p>
                   </div>
                   {/* shrink-0 stops this colliding with the heading on narrow cards */}
                   <Link href="/reports" className="link inline-flex shrink-0 items-center gap-1 text-xs">
                     Reports <ArrowUpRight className="h-3 w-3" />
                   </Link>
                 </div>
-                {/* Chart needs a bounded height; ResponsiveContainer handles width */}
                 <div className="h-56 sm:h-64 lg:h-72">
                   <RevenueBarChart data={revenue} />
                 </div>
@@ -150,7 +133,6 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Recent shipments — table on desktop, cards on mobile */}
             <div className="card overflow-hidden">
               <div className="flex items-center justify-between gap-3 border-b border-ink-100 px-4 py-4 sm:px-6 dark:border-ink-800">
                 <h3 className="font-semibold text-ink-900 dark:text-ink-100">Recent shipments</h3>

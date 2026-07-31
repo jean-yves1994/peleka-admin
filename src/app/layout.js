@@ -1,8 +1,8 @@
-import './globals.css';
+import "./globals.css";
 
 export const metadata = {
-  title: 'Peleka Admin — Kigali',
-  description: 'Peleka Courier — Admin Dashboard for Kigali City',
+  title: "Peleka Admin — Kigali",
+  description: "Peleka Courier — Admin Dashboard for Kigali City",
 };
 
 // Runs before React hydrates to avoid flash-of-wrong-theme
@@ -23,7 +23,7 @@ export default function RootLayout({ children }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body>{children}</body>
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }

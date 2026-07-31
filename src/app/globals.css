@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body { @apply bg-ink-50 text-ink-800 antialiased transition-colors; }
+  html.dark, html.dark body { @apply bg-ink-950 text-ink-100; }
+  * { box-sizing: border-box; }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-2xl shadow-card border border-ink-100/60
+           dark:bg-ink-900 dark:border-ink-800 dark:shadow-none;
+  }
+  .btn { @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition; }
+  .btn-primary { @apply bg-brand-600 text-white hover:bg-brand-700 shadow-pop; }
+  .btn-ghost { @apply text-ink-700 hover:bg-ink-100 dark:text-ink-100 dark:hover:bg-ink-800; }
+  .btn-danger { @apply bg-rose-600 text-white hover:bg-rose-700; }
+  .btn-outline {
+    @apply border border-ink-200 text-ink-800 hover:bg-ink-50
+           dark:border-ink-800 dark:text-ink-100 dark:hover:bg-ink-800;
+  }
+  .input {
+    @apply w-full px-3 py-2 border border-ink-200 rounded-xl text-sm bg-white text-ink-800
+           focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-500
+           dark:bg-ink-900 dark:border-ink-800 dark:text-ink-100 dark:placeholder-ink-500;
+  }
+  .label { @apply block text-xs font-medium text-ink-500 mb-1.5 dark:text-ink-400; }
+  .link { @apply text-brand-600 hover:text-brand-700 hover:underline dark:text-brand-400 dark:hover:text-brand-300; }
+  .kbd {
+    @apply px-1.5 py-0.5 text-[10px] font-mono rounded border border-ink-200 text-ink-500 bg-ink-50
+           dark:border-ink-700 dark:bg-ink-800 dark:text-ink-400;
+  }
+  .badge { @apply inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full; }
+  .table th {
+    @apply text-left text-xs font-semibold uppercase tracking-wider text-ink-500 py-3 px-4
+           dark:text-ink-400;
+  }
+  .table td {
+    @apply py-4 px-4 text-sm text-ink-800 border-t border-ink-100
+           dark:text-ink-100 dark:border-ink-800;
+  }
+  .table tr:hover td { @apply bg-ink-50/60 dark:bg-ink-800/50; }
+}

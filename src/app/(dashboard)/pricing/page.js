@@ -364,7 +364,7 @@ function PricingConfigs() {
             />
           </div>
           <div>
-            <label className="label">Motobike commission %</label>
+            <label className="label">Bike commission %</label>
             <input
               type="number"
               step="0.01"

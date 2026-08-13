@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Package, TrendingUp, Users, DollarSign, ArrowUpRight } from 'lucide-react';
+import { Package, TrendingUp, Users, DollarSign, ArrowUpRight, Crown } from 'lucide-react';
 import TopBar from '@/components/TopBar';
 import StatCard from '@/components/StatCard';
 import DataTable from '@/components/DataTable';
@@ -77,7 +77,7 @@ export default function DashboardPage() {
               Starts at ONE column. Two ~130px cards side by side is what
               produced the overlapping label/icon in the screenshot.
             */}
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-5">
               <StatCard
                 label="Total shipments"
                 value={num(data.shipments.total)}
@@ -101,6 +101,12 @@ export default function DashboardPage() {
                 value={`${num(data.riders.online)} / ${num(data.riders.approved)}`}
                 sub={`${num(data.riders.pending_approval)} pending approval`}
                 icon={Users} tone="amber"
+              />
+              <StatCard
+                label="Premier outstanding"
+                value={money(data.premier_billing?.premier_outstanding || 0)}
+                sub={`${num(data.premier_billing?.premier_customers || 0)} Premier customers`}
+                icon={Crown} tone="violet"
               />
             </div>
 

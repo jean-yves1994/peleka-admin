@@ -122,13 +122,15 @@ export default function ShipmentDetailPage() {
 
   const s = d.shipment;
 
-  // Pay-before: an unpaid shipment isn't dispatchable. The backend rejects the
-  // assign call with a 409, so hiding the button here keeps the UI honest
-  // rather than offering an action that will fail.
-  const isUnpaid = s.status === "pending_payment";
+  const customerBilling = d.customer_billing || {};
+  const isPremier =
+    customerBilling.customer_type === "premier" ||
+    customerBilling.contract_customer === true;
+  const isUnpaid = s.status === "pending_payment" && !isPremier;
+  const isPremierUnpaid = s.status === "pending_payment" && isPremier;
 
   const canAssign =
-    !isUnpaid &&
+    (!isUnpaid || isPremierUnpaid) &&
     ![
       "delivered",
       "cancelled",
@@ -191,19 +193,19 @@ export default function ShipmentDetailPage() {
           <ArrowLeft className="w-3 h-3" /> Back to shipments
         </Link>
 
-        {/* Unpaid banner — the customer still owes money, so say so plainly */}
-        {isUnpaid && (
+        {/* Payment/billing banner */}
+        {(isUnpaid || isPremierUnpaid) && (
           <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/50 dark:bg-amber-900/25">
             <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
             <div className="min-w-0">
               <div className="text-sm font-semibold text-amber-900 dark:text-amber-200">
-                Payment not completed
+                {isPremierUnpaid ? "Premier billing — payment outstanding" : "Payment not completed"}
               </div>
               <p className="mt-1 text-xs leading-relaxed text-amber-800 dark:text-amber-300/90">
-                This shipment can&apos;t be assigned to a rider until the
-                customer pays {money(s.total_price, s.currency)}. It will move
-                to <span className="font-medium">Awaiting Assignment</span>{" "}
-                automatically once Paypack confirms the payment.
+                {isPremierUnpaid
+                  ? `This Premier customer is approved for post-delivery billing. The shipment may be assigned before payment; ${money(s.total_price, s.currency)} remains outstanding.`
+                  : `This shipment can&apos;t be assigned to a rider until the customer pays ${money(s.total_price, s.currency)}. It will move to Awaiting Assignment automatically once Paypack confirms the payment.`}
+                }
               </p>
             </div>
           </div>
@@ -252,9 +254,6 @@ export default function ShipmentDetailPage() {
                 </Chip>
                 <Chip tone="slate">
                   Duration: {Number(s.duration_minutes).toFixed(0)} min
-                </Chip>
-                <Chip tone="slate">
-                  Weight: {Number(s.parcel_weight_kg).toFixed(2)} kg
                 </Chip>
                 {s.is_fragile && <Chip tone="amber">Fragile</Chip>}
                 {s.requires_signature && (
@@ -414,12 +413,6 @@ export default function ShipmentDetailPage() {
                   </dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-ink-500 dark:text-ink-400">Weight fee</dt>
-                  <dd className="font-medium tabular-nums">
-                    {money(s.weight_fee, s.currency)}
-                  </dd>
-                </div>
-                <div className="flex justify-between">
                   <dt className="text-ink-500 dark:text-ink-400">Subtotal</dt>
                   <dd className="font-medium tabular-nums">
                     {money(s.subtotal, s.currency)}
@@ -455,6 +448,18 @@ export default function ShipmentDetailPage() {
                 </div>
               </dl>
             </div>
+
+            {isPremier && (
+              <div className="card p-6 border-amber-200 dark:border-amber-900/50">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-300 mb-3">
+                  Premier billing
+                </h3>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div><div className="text-xs text-ink-500">Credit limit</div><div className="font-medium">{money(customerBilling.credit_limit || 0, s.currency)}</div></div>
+                  <div><div className="text-xs text-ink-500">Outstanding account balance</div><div className="font-medium">{money(customerBilling.outstanding_balance || 0, s.currency)}</div></div>
+                </div>
+              </div>
+            )}
 
             <div className="card p-6">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-500 dark:text-ink-400 mb-3">

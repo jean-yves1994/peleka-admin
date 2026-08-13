@@ -20,7 +20,7 @@ const TABS = [
     key: "configs",
     label: "Pricing configs",
     icon: DollarSign,
-    help: "Global fare formula: base + per-km + per-kg + surge + tax. Only one active at a time.",
+    help: "Global fare formula: base + per-km + surge + tax. Only one active at a time.",
   },
   {
     key: "discounts",
@@ -89,11 +89,9 @@ function PricingConfigs() {
     currency: "RWF",
     base_fare: 2000,
     price_per_km: 200,
-    price_per_kg: 0,
     price_per_minute: 0,
     min_price: 2000,
     max_price: "",
-    free_km: 0,
     surge_multiplier: 1.0,
     tax_percentage: 0,
     rider_commission_percentage: 30,
@@ -180,12 +178,6 @@ function PricingConfigs() {
                 <dt className="text-ink-500 dark:text-ink-400">Per km</dt>
                 <dd className="font-medium">
                   {money(c.price_per_km, c.currency)}
-                </dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-ink-500 dark:text-ink-400">Per kg</dt>
-                <dd className="font-medium">
-                  {money(c.price_per_kg, c.currency)}
                 </dd>
               </div>
               <div className="flex justify-between">
@@ -285,30 +277,6 @@ function PricingConfigs() {
               value={form.price_per_km}
               onChange={(e) =>
                 setForm({ ...form, price_per_km: Number(e.target.value) })
-              }
-            />
-          </div>
-          <div>
-            <label className="label">Price per kg</label>
-            <input
-              type="number"
-              step="0.01"
-              className="input"
-              value={form.price_per_kg}
-              onChange={(e) =>
-                setForm({ ...form, price_per_kg: Number(e.target.value) })
-              }
-            />
-          </div>
-          <div>
-            <label className="label">Free km</label>
-            <input
-              type="number"
-              step="0.1"
-              className="input"
-              value={form.free_km}
-              onChange={(e) =>
-                setForm({ ...form, free_km: Number(e.target.value) })
               }
             />
           </div>

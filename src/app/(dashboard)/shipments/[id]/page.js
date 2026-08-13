@@ -126,8 +126,10 @@ export default function ShipmentDetailPage() {
   const isPremier =
     customerBilling.customer_type === "premier" ||
     customerBilling.contract_customer === true;
-  const isUnpaid = s.status === "pending_payment" && !isPremier;
-  const isPremierUnpaid = s.status === "pending_payment" && isPremier;
+  const paymentStatus = String(s.payment_status || "").toLowerCase();
+  const hasNoCompletedPayment = paymentStatus !== "paid";
+  const isUnpaid = !isPremier && (s.status === "pending_payment" || (paymentStatus === "unpaid" && !s.rider_id));
+  const isPremierUnpaid = isPremier && hasNoCompletedPayment && (s.status === "pending_payment" || paymentStatus === "unpaid");
 
   const canAssign =
     (!isUnpaid || isPremierUnpaid) &&
@@ -204,9 +206,19 @@ export default function ShipmentDetailPage() {
                   : "Payment not completed"}
               </div>
               <p className="mt-1 text-xs leading-relaxed text-amber-800 dark:text-amber-300/90">
-                {isPremierUnpaid
-                  ? `This Premier customer is approved for post-delivery billing. The shipment may be assigned before payment; ${money(s.total_price, s.currency)} remains outstanding.`
-                  : `This shipment can't be assigned to a rider until the customer pays ${money(s.total_price, s.currency)}. It will move to Awaiting Assignment automatically once Paypack confirms the payment.`}
+                {isPremierUnpaid ? (
+                  <>
+                    This Premier customer is approved for post-delivery billing. The
+                    shipment may be assigned before payment; {money(s.total_price, s.currency)}
+                    remains outstanding.
+                  </>
+                ) : (
+                  <>
+                    This shipment can't be assigned to a rider until the customer pays
+                    {" "}{money(s.total_price, s.currency)}. It will move to Awaiting
+                    Assignment automatically once Paypack confirms the payment.
+                  </>
+                )}
               </p>
             </div>
           </div>

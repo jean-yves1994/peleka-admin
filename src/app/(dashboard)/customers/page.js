@@ -18,6 +18,7 @@ export default function CustomersPage() {
   const [selected, setSelected] = useState(null);
   const [billing, setBilling] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [billingLoading, setBillingLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
   const [customerType, setCustomerType] = useState("standard");
@@ -44,17 +45,21 @@ export default function CustomersPage() {
     setErr("");
     setCustomerType(customer.customer_type || (customer.contract_customer ? "premier" : "standard"));
     setCreditLimit(String(customer.credit_limit ?? 0));
-    setDetailLoading(true);
+    setDetailLoading(false);
+    setBillingLoading(true);
     try {
       const r = await api.get(`/api/admin/customers/${customer.id}/billing`);
       setBilling(r.data);
-      const c = r.data.customer;
-      setCustomerType(c.customer_type || (c.contract_customer ? "premier" : "standard"));
-      setCreditLimit(String(c.credit_limit ?? 0));
+      const c = r.data?.customer;
+      if (c) {
+        setCustomerType(c.customer_type || (c.contract_customer ? "premier" : "standard"));
+        setCreditLimit(String(c.credit_limit ?? 0));
+        setSelected(c);
+      }
     } catch (e) {
       setErr(e.message || "Failed to load customer billing");
     } finally {
-      setDetailLoading(false);
+      setBillingLoading(false);
     }
   };
 
@@ -68,9 +73,18 @@ export default function CustomersPage() {
         credit_limit: Number(creditLimit || 0),
       });
       await load();
-      const r = await api.get(`/api/admin/customers/${selected.id}/billing`);
-      setBilling(r.data);
-      setSelected(r.data.customer);
+      setBillingLoading(true);
+      try {
+        const r = await api.get(`/api/admin/customers/${selected.id}/billing`);
+        setBilling(r.data);
+        if (r.data?.customer) setSelected(r.data.customer);
+      } catch (e) {
+        // The account update already succeeded. Keep the modal open and
+        // report only the billing-refresh failure.
+        setErr(e.message || "Customer updated, but billing could not be refreshed");
+      } finally {
+        setBillingLoading(false);
+      }
     } catch (e) {
       setErr(e.message || "Failed to update customer account");
     } finally {
@@ -151,12 +165,12 @@ export default function CustomersPage() {
           </>
         }
       >
-        {detailLoading ? <div className="py-8 text-sm text-ink-500">Loading billing…</div> : (
+        {detailLoading ? <div className="py-8 text-sm text-ink-500">Loading customer…</div> : (
           <div className="space-y-5">
             {err && <div className="p-3 rounded-lg bg-rose-50 text-rose-700 text-sm dark:bg-rose-900/30 dark:text-rose-300">{err}</div>}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="card p-4"><div className="text-xs text-ink-500">Account</div><div className="mt-1 font-semibold capitalize">{customerType}</div></div>
-              <div className="card p-4"><div className="text-xs text-ink-500">Outstanding</div><div className="mt-1 font-semibold">{money(billing?.outstanding_balance || 0, "RWF")}</div></div>
+              <div className="card p-4"><div className="text-xs text-ink-500">Outstanding</div><div className="mt-1 font-semibold">{money(billing?.outstanding_balance || 0, "RWF")}</div>{billingLoading && <div className="mt-1 text-[11px] text-ink-400">Refreshing…</div>}</div>
               <div className="card p-4"><div className="text-xs text-ink-500">Credit limit</div><div className="mt-1 font-semibold">{money(creditLimit || 0, "RWF")}</div></div>
             </div>
             <div>
@@ -174,7 +188,7 @@ export default function CustomersPage() {
             <div>
               <div className="flex items-center gap-2 mb-2"><Wallet className="h-4 w-4" /><h3 className="font-semibold">Shipment billing history</h3></div>
               <div className="max-h-64 overflow-auto rounded-lg border border-ink-100 dark:border-ink-800">
-                {billing?.shipments?.length ? billing.shipments.map(s => (
+                {billingLoading && !billing ? <div className="p-4 text-sm text-ink-500">Loading billing history…</div> : billing?.shipments?.length ? billing.shipments.map(s => (
                   <div key={s.id} className="flex items-center justify-between gap-3 p-3 border-b last:border-0 border-ink-100 dark:border-ink-800 text-sm">
                     <div><div className="font-medium">{s.tracking_number}</div><div className="text-xs text-ink-500">{s.status}</div></div>
                     <div className="text-right"><div className="font-medium">{money(s.total_price, s.currency)}</div><div className="text-xs text-ink-500">{s.payment_status}</div></div>

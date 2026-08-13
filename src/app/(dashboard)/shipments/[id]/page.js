@@ -199,13 +199,14 @@ export default function ShipmentDetailPage() {
             <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
             <div className="min-w-0">
               <div className="text-sm font-semibold text-amber-900 dark:text-amber-200">
-                {isPremierUnpaid ? "Premier billing — payment outstanding" : "Payment not completed"}
+                {isPremierUnpaid
+                  ? "Premier billing — payment outstanding"
+                  : "Payment not completed"}
               </div>
               <p className="mt-1 text-xs leading-relaxed text-amber-800 dark:text-amber-300/90">
                 {isPremierUnpaid
                   ? `This Premier customer is approved for post-delivery billing. The shipment may be assigned before payment; ${money(s.total_price, s.currency)} remains outstanding.`
-                  : `This shipment can&apos;t be assigned to a rider until the customer pays ${money(s.total_price, s.currency)}. It will move to Awaiting Assignment automatically once Paypack confirms the payment.`}
-                }
+                  : `This shipment can't be assigned to a rider until the customer pays ${money(s.total_price, s.currency)}. It will move to Awaiting Assignment automatically once Paypack confirms the payment.`}
               </p>
             </div>
           </div>
@@ -455,8 +456,23 @@ export default function ShipmentDetailPage() {
                   Premier billing
                 </h3>
                 <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div><div className="text-xs text-ink-500">Credit limit</div><div className="font-medium">{money(customerBilling.credit_limit || 0, s.currency)}</div></div>
-                  <div><div className="text-xs text-ink-500">Outstanding account balance</div><div className="font-medium">{money(customerBilling.outstanding_balance || 0, s.currency)}</div></div>
+                  <div>
+                    <div className="text-xs text-ink-500">Credit limit</div>
+                    <div className="font-medium">
+                      {money(customerBilling.credit_limit || 0, s.currency)}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-ink-500">
+                      Outstanding account balance
+                    </div>
+                    <div className="font-medium">
+                      {money(
+                        customerBilling.outstanding_balance || 0,
+                        s.currency,
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}

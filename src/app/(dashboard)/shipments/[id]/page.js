@@ -126,10 +126,8 @@ export default function ShipmentDetailPage() {
   const isPremier =
     customerBilling.customer_type === "premier" ||
     customerBilling.contract_customer === true;
-  const paymentStatus = String(s.payment_status || "").toLowerCase();
-  const hasNoCompletedPayment = paymentStatus !== "paid";
-  const isUnpaid = !isPremier && (s.status === "pending_payment" || (paymentStatus === "unpaid" && !s.rider_id));
-  const isPremierUnpaid = isPremier && hasNoCompletedPayment && (s.status === "pending_payment" || paymentStatus === "unpaid");
+  const isUnpaid = s.status === "pending_payment" && !isPremier;
+  const isPremierUnpaid = s.status === "pending_payment" && isPremier;
 
   const canAssign =
     (!isUnpaid || isPremierUnpaid) &&
@@ -199,26 +197,24 @@ export default function ShipmentDetailPage() {
         {(isUnpaid || isPremierUnpaid) && (
           <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/50 dark:bg-amber-900/25">
             <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+
             <div className="min-w-0">
               <div className="text-sm font-semibold text-amber-900 dark:text-amber-200">
                 {isPremierUnpaid
                   ? "Premier billing — payment outstanding"
                   : "Payment not completed"}
               </div>
+
               <p className="mt-1 text-xs leading-relaxed text-amber-800 dark:text-amber-300/90">
-                {isPremierUnpaid ? (
-                  <>
-                    This Premier customer is approved for post-delivery billing. The
-                    shipment may be assigned before payment; {money(s.total_price, s.currency)}
-                    remains outstanding.
-                  </>
-                ) : (
-                  <>
-                    This shipment can't be assigned to a rider until the customer pays
-                    {" "}{money(s.total_price, s.currency)}. It will move to Awaiting
-                    Assignment automatically once Paypack confirms the payment.
-                  </>
-                )}
+                {isPremierUnpaid
+                  ? `This Premier customer is approved for post-delivery billing. The shipment may be assigned before payment; ${money(
+                      s.total_price,
+                      s.currency,
+                    )} remains outstanding.`
+                  : `This shipment can't be assigned to a rider until the customer pays ${money(
+                      s.total_price,
+                      s.currency,
+                    )}. It will move to Awaiting Assignment automatically once Paypack confirms the payment.`}
               </p>
             </div>
           </div>
@@ -269,9 +265,6 @@ export default function ShipmentDetailPage() {
                   Duration: {Number(s.duration_minutes).toFixed(0)} min
                 </Chip>
                 {s.is_fragile && <Chip tone="amber">Fragile</Chip>}
-                {s.requires_signature && (
-                  <Chip tone="amber">Signature required</Chip>
-                )}
               </div>
             </div>
 

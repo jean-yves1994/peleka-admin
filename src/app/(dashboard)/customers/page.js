@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import { UserCircle, Crown, Wallet, Pencil } from "lucide-react";
+import { UserCircle, Crown, Wallet, Pencil, Ban, AlertTriangle } from "lucide-react";
 import TopBar from "@/components/TopBar";
 import Pagination from "@/components/Pagination";
 import EmptyState from "@/components/EmptyState";
@@ -22,6 +22,7 @@ export default function CustomersPage() {
   const [err, setErr] = useState("");
   const [customerType, setCustomerType] = useState("standard");
   const [creditLimit, setCreditLimit] = useState("0");
+  const [deactivateBusy, setDeactivateBusy] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -76,6 +77,15 @@ export default function CustomersPage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const deactivateCustomer = async () => {
+    if (!selected || deactivateBusy) return;
+    if (!window.confirm(`Deactivate ${selected.full_name}? They will no longer be able to sign in.`)) return;
+    setDeactivateBusy(true); setErr("");
+    try { const r = await api.post(`/api/admin/customers/${selected.id}/deactivate`, {}); setSelected(r.data.customer); await load(); }
+    catch (e) { setErr(e.message || "Failed to deactivate customer"); }
+    finally { setDeactivateBusy(false); }
   };
 
   return (
@@ -158,6 +168,13 @@ export default function CustomersPage() {
               <div className="card p-4"><div className="text-xs text-ink-500">Account</div><div className="mt-1 font-semibold capitalize">{customerType}</div></div>
               <div className="card p-4"><div className="text-xs text-ink-500">Outstanding</div><div className="mt-1 font-semibold">{money(billing?.outstanding_balance || 0, "RWF")}</div></div>
               <div className="card p-4"><div className="text-xs text-ink-500">Credit limit</div><div className="mt-1 font-semibold">{money(creditLimit || 0, "RWF")}</div></div>
+            </div>
+            <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 dark:border-rose-900/50 dark:bg-rose-900/20">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-rose-600" />
+                <div className="min-w-0 flex-1"><h3 className="font-semibold text-rose-900 dark:text-rose-200">Account status</h3><p className="mt-1 text-sm text-rose-700 dark:text-rose-300">Current status: <span className="font-medium capitalize">{selected?.status || "unknown"}</span>. Deactivation preserves shipment and billing history.</p></div>
+                {selected?.status !== "suspended" && <button onClick={deactivateCustomer} disabled={deactivateBusy} className="btn btn-danger shrink-0"><Ban className="h-4 w-4" />{deactivateBusy ? "Deactivating…" : "Deactivate"}</button>}
+              </div>
             </div>
             <div>
               <label className="label">Customer type</label>

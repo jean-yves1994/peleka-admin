@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { UserPlus, Check, Ban, Star, MapPin, Users, AlertTriangle } from 'lucide-react';
+import { UserPlus, Check, Ban, KeyRound, Star, MapPin, Users, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 import TopBar from '@/components/TopBar';
 import DataTable, { FilterBar } from '@/components/DataTable';
 import { RiderBadge } from '@/components/Badge';
@@ -44,6 +44,12 @@ export default function RidersPage() {
   const [suspendNotes, setSuspendNotes] = useState('');
   const [suspendSubmitting, setSuspendSubmitting] = useState(false);
   const [suspendErr, setSuspendErr] = useState('');
+  const [resetTarget, setResetTarget] = useState(null);
+  const [resetPassword, setResetPassword] = useState('');
+  const [resetShow, setResetShow] = useState(false);
+  const [resetBusy, setResetBusy] = useState(false);
+  const [resetErr, setResetErr] = useState('');
+  const [resetDone, setResetDone] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -78,6 +84,17 @@ export default function RidersPage() {
   };
 
   const approve = async (id) => { await api.post(`/api/admin/riders/${id}/approve`, {}); load(); };
+
+  const openReset = (rider) => { setResetTarget(rider); setResetPassword(''); setResetShow(false); setResetErr(''); setResetDone(false); };
+
+  const doReset = async () => {
+    if (!resetTarget) return;
+    if (resetPassword.length < 8 || !/[A-Za-z]/.test(resetPassword) || !/[0-9]/.test(resetPassword)) { setResetErr('Password must be at least 8 characters and include a letter and a number.'); return; }
+    setResetBusy(true); setResetErr('');
+    try { await api.post(`/api/admin/riders/${resetTarget.id}/reset-password`, { password: resetPassword }); setResetDone(true); }
+    catch (e) { setResetErr(e.message || 'Failed to reset rider password'); }
+    finally { setResetBusy(false); }
+  };
 
   const openSuspend = (rider) => {
     setSuspendTarget(rider);
@@ -119,6 +136,9 @@ export default function RidersPage() {
           <Check className="h-3.5 w-3.5" /> Approve
         </button>
       )}
+      <button onClick={(e) => { e.stopPropagation(); openReset(r); }} className="btn btn-outline flex-1 justify-center sm:flex-none">
+        <KeyRound className="h-3.5 w-3.5" /> Reset password
+      </button>
       {r.status !== 'suspended' && (
         <button
           onClick={(e) => { e.stopPropagation(); openSuspend(r); }}
@@ -348,6 +368,22 @@ export default function RidersPage() {
               onChange={(e) => setForm({ ...form, license_number: e.target.value })} />
           </div>
         </form>
+      </Modal>
+
+      {/* Reset rider password */}
+      <Modal open={!!resetTarget} onClose={() => setResetTarget(null)} title={resetTarget ? `Reset password · ${resetTarget.full_name}` : 'Reset rider password'} footer={
+        <>
+          <button onClick={() => setResetTarget(null)} className="btn btn-ghost w-full justify-center sm:w-auto">Close</button>
+          {!resetDone && <button onClick={doReset} disabled={resetBusy} className="btn btn-primary w-full justify-center sm:w-auto">{resetBusy ? 'Resetting…' : 'Reset password'}</button>}
+        </>
+      }>
+        <div className="space-y-4">
+          {resetDone ? <div className="rounded-xl bg-emerald-50 p-4 text-sm text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200"><div className="font-semibold">Password reset successfully.</div><p className="mt-1">The rider's existing sessions have been signed out. Give the rider the new temporary password securely.</p></div> : <>
+            <div className="rounded-xl bg-amber-50 p-4 text-sm text-amber-800 dark:bg-amber-900/30 dark:text-amber-200">Choose a temporary password for this rider. It will be stored only as a secure hash.</div>
+            {resetErr && <div className="rounded-lg bg-rose-50 p-2 text-sm text-rose-700 dark:bg-rose-900/30 dark:text-rose-300">{resetErr}</div>}
+            <div><label className="label">New temporary password *</label><div className="relative"><input className="input pr-10" type={resetShow ? 'text' : 'password'} value={resetPassword} onChange={(e) => setResetPassword(e.target.value)} autoComplete="new-password" placeholder="Min 8 chars, letter + digit"/><button type="button" onClick={() => setResetShow(!resetShow)} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-ink-500">{resetShow ? <EyeOff className="h-4 w-4"/> : <Eye className="h-4 w-4"/>}</button></div><p className="mt-1 text-xs text-ink-500">At least 8 characters with a letter and a number.</p></div>
+          </>}
+        </div>
       </Modal>
 
       {/* Suspend rider */}
